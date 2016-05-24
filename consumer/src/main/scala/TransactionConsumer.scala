@@ -22,6 +22,7 @@ package com.datastax.demo.fraudprevention
   */
 
 import java.util.{GregorianCalendar, Calendar}
+import java.text.SimpleDateFormat
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.{SQLContext, SaveMode}
@@ -110,8 +111,10 @@ object TransactionConsumer extends App {
           // Simple use of status to set REJECTED or APPROVED
           val initStatus = payload(9).toInt
           val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
-
-          val date_text = f"$calendar.get(Calendar.YEAR)%04d$month%02d$day%02d"
+          
+          val dateFormat = new SimpleDateFormat("yyyymmdd")
+          val date_text = dateFormat.format(now)
+          //val date_text = f"$year%04d$month%02d$day%02d"
 
           Transaction(cc_no, cc_provider, year, month, day, hour, min, txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
         }).toDF("cc_no", "cc_provider", "year", "month", "day", "hour", "min","txn_time", "txn_id", "merchant", "location", "country", "items", "amount", "status", "date_text")
