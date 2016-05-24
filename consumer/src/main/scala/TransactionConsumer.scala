@@ -113,7 +113,7 @@ object TransactionConsumer extends App {
           val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
           
           val dateFormat = new SimpleDateFormat("yyyymmdd")
-          val date_text = dateFormat.format(calender.getTme())
+          val date_text = dateFormat.format(calendar.getTme())
           //val date_text = f"$year%04d$month%02d$day%02d"
 
           Transaction(cc_no, cc_provider, year, month, day, hour, min, txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
