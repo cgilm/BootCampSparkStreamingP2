@@ -74,7 +74,7 @@ object TransactionConsumer extends App {
                          items: Map[String, Double],
                          amount: Double,
                          status: String,
-                         date_test: String)
+                         date_text: String)
 
   case class TransCount(status: String)
 
