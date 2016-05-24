@@ -8,7 +8,7 @@ In order to run this demo, It is assumed that you have the following installed a
   4. sbt
   5. [Ubuntu Install Instructions!](docs/prerequisites.md)
 
-###In order to run this demo you will need to download the source from GitHub.
+###In order to run this project you will need to download the source from GitHub.
 
   * Navigate to the directory where you would like to save the code.
   * Execute the following command:
@@ -16,22 +16,20 @@ In order to run this demo, It is assumed that you have the following installed a
   
        `git clone https://github.com/cgilm/BootCampSparkStreaming.git`
   
-###To build the demo
+###To build the project
 
-  * Create the Cassandra Keyspaces and Tables using the `CreateTable.cql` script
-  * Navigate to the root directory of the project where you downloaded
-  * Build the Producer with this command:
+  * Create the Cassandra Keyspaces and Tables using the `CreateTables.cql` script
+    `cqlsh -f resources/CreateTables.cql`    
+
+  * Build the Producer from the project root with this command:
   
     `sbt producer/package`
       
-  * Build the Consumer with this command:
+  * Build the Consumer from the project root  with this command:
   
     `sbt consumer/package`
   
-###To run the demo
-
-This assumes you already have Kafka and DSE up and running and configured as in the steps above.
-
+###To run the project
   * From the root directory of the project start the producer app
   
     `sbt producer/run`
@@ -39,6 +37,6 @@ This assumes you already have Kafka and DSE up and running and configured as in 
   
   * From the root directory of the project start the consumer app
   
-    `dse spark-submit --master spark://127.0.0.1:7077 --packages org.apache.spark:spark-streaming-kafka_2.10:1.4.1 --class com.datastax.demo.fraudprevention.TransactionConsumer consumer/target/scala-2.10/consumer_2.10-0.1.jar`
+    `dse spark-submit --master spark://<YOUR SPARK MASTER HERE>:7077 --packages org.apache.spark:spark-streaming-kafka_2.10:1.4.1 --class com.datastax.demo.fraudprevention.TransactionConsumer consumer/target/scala-2.10/consumer_2.10-0.1.jar`
     
   
