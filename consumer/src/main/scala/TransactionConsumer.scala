@@ -45,8 +45,8 @@ object TransactionConsumer extends App {
 
  // configure the number of cores and RAM to use
   val conf = new SparkConf()
-    .set("spark.cores.max", "2")
-    .set("spark.executor.memory", "2048M")
+    .set("spark.cores.max", "4")
+    .set("spark.executor.memory", "2G")
     .setAppName(appName)
     
   val sc = SparkContext.getOrCreate(conf)
@@ -165,6 +165,8 @@ object TransactionConsumer extends App {
         val approvedTxnMin = df.filter("status = 'APPROVED'").count()
         val pctApprovedMin = if (totalTxnMin > 0) ((approvedTxnMin/totalTxnMin.toDouble)*100.0) else 0.0
 
+        //Get previous minute from cassandra
+        
         val dfPrev = sqlContext
           .read
           .format("org.apache.spark.sql.cassandra")
