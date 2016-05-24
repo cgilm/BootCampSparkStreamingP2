@@ -18,10 +18,10 @@ package com.datastax.demo.fraudprevention
 
 /**
   * Created by carybourgeois on 10/30/15.
+  * Modified by cgilmore on 5/20/16
   */
 
 import java.util.{GregorianCalendar, Calendar}
-
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.{SQLContext, SaveMode}
@@ -30,44 +30,33 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import java.sql.Timestamp
+import sqlContext.implicits._
+import org.apache.spark.sql.functions._
 
-// This implementation uses the Kafka Direct API supported in Spark 1.4+
 object TransactionConsumer extends App {
 
-  /*
-   * Get runtime properties from application.conf
-   */
+  // Get configuration properties
   val systemConfig = ConfigFactory.load()
-
   val appName = systemConfig.getString("TransactionConsumer.sparkAppName")
-
   val kafkaHost = systemConfig.getString("TransactionConsumer.kafkaHost")
   val kafkaDataTopic = systemConfig.getString("TransactionConsumer.kafkaDataTopic")
-
-  // this does not work in this example at this point as these vaialble appear to be out of scope for the
-  // map portion of the forEachRDD
-  //
-  val pctTransactionToDecline = systemConfig.getString("TransactionConsumer.pctTransactionToDecline")
-
   val dseKeyspace = systemConfig.getString("TransactionConsumer.dseKeyspace")
   val dseTable = systemConfig.getString("TransactionConsumer.dseTable")
 
+ // configure the number of cores and RAM to use
   val conf = new SparkConf()
     .set("spark.cores.max", "2")
     .set("spark.executor.memory", "2048M")
     .setAppName(appName)
+    
   val sc = SparkContext.getOrCreate(conf)
-
   val sqlContext = SQLContext.getOrCreate(sc)
-  import sqlContext.implicits._
-  import org.apache.spark.sql.functions._
-
   val ssc = new StreamingContext(sc, Seconds(1))
   ssc.checkpoint(appName)
 
+  // configure kafka connection and topic
   val kafkaParams = Map[String, String]("metadata.broker.list" -> kafkaHost)
   val kafkaTopics = Set(kafkaDataTopic)
-
   val kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, kafkaTopics)
 
   case class Transaction(cc_no:String,
@@ -82,7 +71,7 @@ object TransactionConsumer extends App {
                          merchant: String,
                          location: String,
                          country: String,
-//                         items: Map[String, Double],
+                         items: Map[String, Double],
                          amount: Double,
                          status: String,
                          date_test: String)
@@ -115,17 +104,10 @@ object TransactionConsumer extends App {
           val merchant = payload(4)
           val location = payload(5)
           val country = payload(6)
-
-          //
-          // not including items as the map data type get resolved in the search engine as a dynamic field
-          // which will eventually blow out the Solr index from a sizing perspective.
-          //val items = payload(6).split(",").map(_.split("->")).map { case Array(k, v) => (k, v.toDouble) }.toMap
-          //
+          items = payload(7).split(",").map(_.split("->")).map { case Array(k, v) => (k, v.toDouble) }.toMap
           val amount = payload(8).toDouble
 
-          //
-          // In a real app this sould need to be updated to include more evaluation rules.
-          //
+          // Simple use of status to set REJECTED or APPROVED
           val initStatus = payload(9).toInt
           val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
 
