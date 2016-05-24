@@ -104,7 +104,7 @@ object TransactionConsumer extends App {
           val merchant = payload(4)
           val location = payload(5)
           val country = payload(6)
-          items = payload(7).split(",").map(_.split("->")).map { case Array(k, v) => (k, v.toDouble) }.toMap
+          val items = payload(7).split(",").map(_.split("->")).map { case Array(k, v) => (k, v.toDouble) }.toMap
           val amount = payload(8).toDouble
 
           // Simple use of status to set REJECTED or APPROVED
