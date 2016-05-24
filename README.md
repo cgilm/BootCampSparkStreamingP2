@@ -1,4 +1,4 @@
-#Datastax Frad Prevention Demo
+#Bootcamp Spark Streaming Reference Project
 
 In order to run this demo, It is assumed that you have the following installed and available on your local system.
 
@@ -13,7 +13,7 @@ In order to run this demo, It is assumed that you have the following installed a
   * Execute the following command:
   
   
-       `git clone https://github.com/CaryBourgeois/KafkaSparkCassandraDemo.git`
+       `git clone https://github.com/cgilm/BootCampSparkStreaming.git`
   
 ###To build the demo
 
