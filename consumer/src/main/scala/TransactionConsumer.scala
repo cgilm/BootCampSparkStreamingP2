@@ -95,12 +95,6 @@ object TransactionConsumer extends App {
           val calendar = new GregorianCalendar()
           calendar.setTime(txn_time)
 
-          val year = calendar.get(Calendar.YEAR)
-          val month = calendar.get(Calendar.MONTH)
-          val day = calendar.get(Calendar.DAY_OF_MONTH)
-          val hour = calendar.get(Calendar.HOUR)
-          val min = calendar.get(Calendar.MINUTE)
-
           val txn_id = payload(3)
           val merchant = payload(4)
           val location = payload(5)
@@ -114,9 +108,8 @@ object TransactionConsumer extends App {
           
           val dateFormat = new SimpleDateFormat("yyyymmdd")
           val date_text = dateFormat.format(calendar.getTime())
-          //val date_text = f"$year%04d$month%02d$day%02d"
 
-          Transaction(cc_no, cc_provider, year, month, day, hour, min, txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
+          Transaction(cc_no, cc_provider, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
         }).toDF("cc_no", "cc_provider", "year", "month", "day", "hour", "min","txn_time", "txn_id", "merchant", "location", "country", "items", "amount", "status", "date_text")
 
         df
