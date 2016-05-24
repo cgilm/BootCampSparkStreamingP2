@@ -87,9 +87,9 @@ object TransactionConsumer extends App {
         val df = message.map {
           case (k, v) => v.split(";")
         }.map(payload => {
+         
           val cc_no = payload(0)
           val cc_provider = payload(1)
-
           val txn_time = Timestamp.valueOf(payload(2))
           val calendar = new GregorianCalendar()
           calendar.setTime(txn_time)
@@ -111,7 +111,7 @@ object TransactionConsumer extends App {
           val initStatus = payload(9).toInt
           val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
 
-          val date_text = f"$year%04d$month%02d$day%02d"
+          val date_text = f"$calendar.get(Calendar.YEAR)%04d$month%02d$day%02d"
 
           Transaction(cc_no, cc_provider, year, month, day, hour, min, txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
         }).toDF("cc_no", "cc_provider", "year", "month", "day", "hour", "min","txn_time", "txn_id", "merchant", "location", "country", "items", "amount", "status", "date_text")
