@@ -6,6 +6,7 @@ In order to run this demo, It is assumed that you have the following installed a
   2. Apache Kafka 0.9.0.1, I used the Scala 2.10 build
   3. git
   4. sbt
+  5. [Ubuntu Install Instructions!](docs/Prerequisites.md)
 
 ###In order to run this demo you will need to download the source from GitHub.
 
