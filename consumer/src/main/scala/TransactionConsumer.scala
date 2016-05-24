@@ -30,7 +30,6 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import java.sql.Timestamp
-import sqlContext.implicits._
 import org.apache.spark.sql.functions._
 
 object TransactionConsumer extends App {
@@ -53,6 +52,7 @@ object TransactionConsumer extends App {
   val sqlContext = SQLContext.getOrCreate(sc)
   val ssc = new StreamingContext(sc, Seconds(1))
   ssc.checkpoint(appName)
+  import sqlContext.implicits._
 
   // configure kafka connection and topic
   val kafkaParams = Map[String, String]("metadata.broker.list" -> kafkaHost)
