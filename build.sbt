@@ -35,7 +35,7 @@ lazy val consumerDeps = Seq(
   "org.apache.spark"  %% "spark-graphx"          % sparkVersion % "provided",
   "org.apache.spark"  %% "spark-sql"             % sparkVersion % "provided",
   "org.apache.spark"  %% "spark-streaming"       % sparkVersion % "provided",
-  "org.apache.spark"  %% "spark-streaming-kafka_2.10" % sparkVersion % "provided",
+  "org.apache.spark"  %% "spark-streaming-kafka" % sparkVersion % "provided",
   "com.databricks"    %% "spark-csv"             % "1.2.0"
 )
     
