@@ -60,23 +60,6 @@ object TransactionConsumer extends App {
   val kafkaTopics = Set(kafkaDataTopic)
   val kafkaStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, kafkaTopics)
 
-  case class Transaction(cc_no:String,
-                         cc_provider: String,
-                         year: Int,
-                         month: Int,
-                         day: Int,
-                         hour: Int,
-                         min: Int,
-                         txn_time: Timestamp,
-                         txn_id: String,
-                         merchant: String,
-                         location: String,
-                         country: String,
-                         items: Map[String, Double],
-                         amount: Double,
-                         status: String,
-                         date_text: String)
-
   case class TransCount(status: String)
 
     /*
