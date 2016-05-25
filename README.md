@@ -1,12 +1,20 @@
-#Bootcamp Spark Streaming Reference Project
+#Bootcamp Spark Streaming Project #1
 
-In order to run this demo, It is assumed that you have the following installed and available on your local system.
+In order to compile and run this project, It is assumed that you have the following installed and available on your local system.
 
   1. Datastax Enterprise 5.0.x
   2. Apache Kafka 0.9.0.1, I used the Scala 2.10 build
   3. git
   4. sbt
   5. [Ubuntu Install Instructions!](docs/prerequisites.md)
+
+### Project Guidelines
+  1. Open `consumer/src/main/scala/TransactionConsumer.scala`
+  2. Find the TODO section and complete the code
+  3. The goal is to use the provided KAFKA direct stream window to parse each record as it comes in, flag any transaction that has an init status of less than 5 as REJECTED and greater than or equal to 5 as ACCEPTED
+  4. Store the results in the provided Transaction class
+  5. print the lines processed count for each RDD to the console
+  6. Save the results to the rtfap.transactions table in Cassandra
 
 ###In order to run this project you will need to download the source from GitHub.
 
