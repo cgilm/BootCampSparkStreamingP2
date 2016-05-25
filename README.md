@@ -8,6 +8,14 @@ In order to compile and run this project, It is assumed that you have the follow
   4. sbt
   5. [Ubuntu Install Instructions!](docs/prerequisites.md)
 
+###In order to run this download you will need to download the source from this GitHub.
+
+  * Navigate to the directory where you would like to save the code.
+  * Execute the following command:
+  
+  
+       `git clone https://github.com/cgilm/BootCampSparkStreamingP1.git`
+
 ### Project Guidelines
   1. Open `consumer/src/main/scala/TransactionConsumer.scala`
   2. Find the TODO section and complete the code
@@ -16,14 +24,6 @@ In order to compile and run this project, It is assumed that you have the follow
   5. print the lines processed count for each RDD to the console
   6. Save the results to the rtfap.transactions table in Cassandra
 
-###In order to run this project you will need to download the source from GitHub.
-
-  * Navigate to the directory where you would like to save the code.
-  * Execute the following command:
-  
-  
-       `git clone https://github.com/cgilm/BootCampSparkStreaming.git`
-  
 ###To build the project
 
   * Create the Cassandra Keyspaces and Tables using the `CreateTables.cql` script
