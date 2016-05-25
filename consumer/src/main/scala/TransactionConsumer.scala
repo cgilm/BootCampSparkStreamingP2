@@ -79,38 +79,43 @@ object TransactionConsumer extends App {
 
   case class TransCount(status: String)
 
-  /*
-   * Stream transactions to Cassandra, flag any transactions that have an initstatus < 5 as REJECTED
+    /*
+   * This stream handles the one hour running totals along with per minute aggregates
    */
-  kafkaStream.window(Seconds(1), Seconds(1))
+  kafkaStream.window(Minutes(1), Seconds(60))
     .foreachRDD {
       (message: RDD[(String, String)], batchTime: Time) => {
         val df = message.map {
           case (k, v) => v.split(";")
         }.map(payload => {
-         
-          val cc_no = payload(0)
-          val cc_provider = payload(1)
-          val txn_time = Timestamp.valueOf(payload(2))
-          val calendar = new GregorianCalendar()
-          calendar.setTime(txn_time)
-
-          val txn_id = payload(3)
-          val merchant = payload(4)
-          val location = payload(5)
-          val country = payload(6)
-          val items = payload(7).split(",").map(_.split("->")).map { case Array(k, v) => (k, v.toDouble) }.toMap
-          val amount = payload(8).toDouble
-
-          // Simple use of status to set REJECTED or APPROVED
           val initStatus = payload(9).toInt
-          
-          val dateFormat = new SimpleDateFormat("yyyymmdd")
-          val date_text = dateFormat.format(calendar.getTime())
-          
-          
-          //TODO : See readme for what to write here
+          val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
 
+          TransCount(status)
+        }).toDF("status")
+
+        val timeInMillis = System.currentTimeMillis()
+
+        val currCal = new GregorianCalendar()
+        currCal.setTime(new Timestamp(timeInMillis))
+
+        val year = currCal.get(Calendar.YEAR)
+        val month = currCal.get(Calendar.MONTH)
+        val day = currCal.get(Calendar.DAY_OF_MONTH)
+        val hour = currCal.get(Calendar.HOUR)
+        val min = currCal.get(Calendar.MINUTE)
+
+        val previnCal = new GregorianCalendar()
+        prevCal.setTime(new Timestamp(timeInMillis))
+        prevCal.add(Calendar.MINUTE, -1)
+
+        val prevYear = prevCal.get(Calendar.YEAR)
+        val prevMonth = prevCal.get(Calendar.MONTH)
+        val prevDay = prevCal.get(Calendar.DAY_OF_MONTH)
+        val prevHour = prevCal.get(Calendar.HOUR)
+        val prevMin = prevCal.get(Calendar.MINUTE)
+        
+        // TODO: See readme for instructions
       }
     }
 
