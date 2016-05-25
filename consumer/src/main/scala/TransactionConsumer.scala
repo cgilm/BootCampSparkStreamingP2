@@ -80,7 +80,7 @@ object TransactionConsumer extends App {
   case class TransCount(status: String)
 
   /*
-   * This stream handles the immediate stream of data to the DB
+   * Stream transactions to Cassandra, flag any transactions that have an initstatus < 5 as REJECTED
    */
   kafkaStream.window(Seconds(1), Seconds(1))
     .foreachRDD {
@@ -104,98 +104,16 @@ object TransactionConsumer extends App {
 
           // Simple use of status to set REJECTED or APPROVED
           val initStatus = payload(9).toInt
-          val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
           
           val dateFormat = new SimpleDateFormat("yyyymmdd")
           val date_text = dateFormat.format(calendar.getTime())
-
-          Transaction(cc_no, cc_provider, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE), txn_time, txn_id, merchant, location, country, items, amount, status, date_text)
-        }).toDF("cc_no", "cc_provider", "year", "month", "day", "hour", "min","txn_time", "txn_id", "merchant", "location", "country", "items", "amount", "status", "date_text")
-
-        df
-          .write
-          .format("org.apache.spark.sql.cassandra")
-          .mode(SaveMode.Append)
-          .options(Map("keyspace" -> dseKeyspace, "table" -> dseTable))
-          .save()
-
-//        df.show(5)
-        println(s"${df.count()} rows processed.")
-      }
-    }
-
-
-  /*
-   * This stream handles the one hour roll up every minute
-   */
-  kafkaStream.window(Minutes(1), Seconds(60))
-    .foreachRDD {
-      (message: RDD[(String, String)], batchTime: Time) => {
-        val df = message.map {
-          case (k, v) => v.split(";")
-        }.map(payload => {
-          val initStatus = payload(9).toInt
-          val status = if (initStatus < 5) s"REJECTED" else s"APPROVED"
-
-          TransCount(status)
-        }).toDF("status")
-
-        val timeInMillis = System.currentTimeMillis()
-
-        val currCal = new GregorianCalendar()
-        currCal.setTime(new Timestamp(timeInMillis))
-
-        val year = currCal.get(Calendar.YEAR)
-        val month = currCal.get(Calendar.MONTH)
-        val day = currCal.get(Calendar.DAY_OF_MONTH)
-        val hour = currCal.get(Calendar.HOUR)
-        val min = currCal.get(Calendar.MINUTE)
-
-        val prevCal = new GregorianCalendar()
-        prevCal.setTime(new Timestamp(timeInMillis))
-        prevCal.add(Calendar.MINUTE, -1)
-
-        val prevYear = prevCal.get(Calendar.YEAR)
-        val prevMonth = prevCal.get(Calendar.MONTH)
-        val prevDay = prevCal.get(Calendar.DAY_OF_MONTH)
-        val prevHour = prevCal.get(Calendar.HOUR)
-        val prevMin = prevCal.get(Calendar.MINUTE)
-
-        val totalTxnMin = df.count()
-        val approvedTxnMin = df.filter("status = 'APPROVED'").count()
-        val pctApprovedMin = if (totalTxnMin > 0) ((approvedTxnMin/totalTxnMin.toDouble)*100.0) else 0.0
-
-        //Get previous minute from cassandra
-        
-        val dfPrev = sqlContext
-          .read
-          .format("org.apache.spark.sql.cassandra")
-          .options(Map("keyspace" -> dseKeyspace, "table" -> "txn_count_min", "spark.cassandra.input.consistency.level" -> "LOCAL_QUORUM"))
-          .load()
-
-        val result = dfPrev
-          .filter(s"year = ${prevYear} and month = ${prevMonth} and day = ${prevDay} and hour = ${prevHour} and minute = ${prevMin}")
-          .select("ttl_txn_hr", "approved_txn_hr")
-
-
-        val totalTxnHr = totalTxnMin + (if (result.count() > 0) result.first.getInt(0) else 0)
-        val approvedTxnHr = approvedTxnMin + (if (result.count() > 0) result.first.getInt(1) else 0)
-        val pctApprovedHr = if (totalTxnHr > 0) ((approvedTxnHr/totalTxnHr.toDouble)*100.0) else 0.0
-
-
-        val dfCount = sc.makeRDD(Seq((year, month, day, hour, min, pctApprovedMin, totalTxnMin, approvedTxnMin, pctApprovedHr, totalTxnHr, approvedTxnHr)))
-          .toDF("year", "month", "day", "hour", "minute", "approved_rate_min", "ttl_txn_min", "approved_txn_min", "approved_rate_hr", "ttl_txn_hr", "approved_txn_hr")
-
-        dfCount.show()
-        dfCount
-          .write
-          .format("org.apache.spark.sql.cassandra")
-          .mode(SaveMode.Append)
-          .options(Map("keyspace" -> dseKeyspace, "table" -> "txn_count_min", "spark.cassandra.output.consistency.level" -> "LOCAL_QUORUM"))
-          .save()
+          
+          
+          //TODO : See readme for what to write here
 
       }
     }
+
 
 
   ssc.start()
