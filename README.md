@@ -19,10 +19,16 @@ In order to compile and run this project, It is assumed that you have the follow
 ### Project Guidelines
   1. Open `consumer/src/main/scala/TransactionConsumer.scala`
   2. Find the TODO section and complete the code
-  3. The goal is to use the provided KAFKA direct stream window to parse each record as it comes in, flag any transaction that has an init status of less than 5 as REJECTED and greater than or equal to 5 as ACCEPTED
-  4. Store the results in the provided Transaction class
-  5. print the lines processed count for each RDD to the console
-  6. Save the results to the rtfap.transactions table in Cassandra
+  3. The goal is to use the provided KAFKA direct stream window to calculate
+      - Use the 1min window to calculate 
+        - Count of Transactions
+        - Count of Approved Transactions
+        - Percentage of Approved Transactions
+      - Pull data from txn_count_min table to add the following
+        - Running count of transactions within the hour
+        - Running count of approved transactions within the hour
+        - Running percentage of approved transactions within the hour
+  6. Save the results to the txn_count_min table in Cassandra
 
 ###To build the project
 
