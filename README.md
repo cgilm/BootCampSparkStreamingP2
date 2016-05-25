@@ -1,4 +1,4 @@
-#Bootcamp Spark Streaming Project #1
+#Bootcamp Spark Streaming Project #2
 
 In order to compile and run this project, It is assumed that you have the following installed and available on your local system.
 
